@@ -32,7 +32,6 @@ def _process_single_image_basic(model_name: str, file_path: str, prompt: str, us
     }]
 
     if use_pipeline:
-        # Use pipeline (faster, simpler)
         pipe = pipeline("image-text-to-text", model=model_name)
         result = pipe(messages)
 

@@ -19,13 +19,13 @@ from .types import (
 
 class BatchOCRSuccess(TypedDict):
     """Successful batch OCR result."""
-    success: bool  # Always True
+    success: bool
     result: MistralOCRResponse | OpenAIOCRResponse | HuggingFaceOCRResponse | GeminiOCRResponse
 
 
 class BatchOCRFailure(TypedDict):
     """Failed batch OCR result."""
-    success: bool  # Always False
+    success: bool
     error: str
     file: str
 
@@ -35,13 +35,13 @@ BatchOCRResult = BatchOCRSuccess | BatchOCRFailure
 
 class BatchExtractSuccess(TypedDict):
     """Successful batch extraction result."""
-    success: bool  # Always True
+    success: bool
     result: Any
 
 
 class BatchExtractFailure(TypedDict):
     """Failed batch extraction result."""
-    success: bool  # Always False
+    success: bool
     error: str
     file: str
 

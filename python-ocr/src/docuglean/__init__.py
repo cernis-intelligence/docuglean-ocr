@@ -23,7 +23,6 @@ from .types import (
     Split,
 )
 
-# Export document parser utilities
 from .parsers import (
     parse_docx,
     parse_pptx,
@@ -54,7 +53,6 @@ __all__ = [
     "ClassifyResult",
     "Partition",
     "Split",
-    # Parser utilities
     "parse_docx",
     "parse_pptx",
     "parse_spreadsheet",

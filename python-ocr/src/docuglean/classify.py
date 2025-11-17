@@ -18,7 +18,6 @@ def _get_page_count(file_path: str) -> int:
             reader = pypdf.PdfReader(f)
             return len(reader.pages)
     except Exception:
-        # Fallback: assume it needs chunking
         return 100
 
 
@@ -33,7 +32,6 @@ def _chunk_pages(total_pages: int, chunk_size: int) -> list[tuple[int, int]]:
 
 def _merge_splits(chunk_results: list[ClassifyResult]) -> ClassifyResult:
     """Merge classification results from multiple chunks."""
-    # Group splits by category name
     category_map: dict[str, dict[str, Any]] = defaultdict(lambda: {
         "pages": [],
         "conf": "high",
@@ -44,8 +42,7 @@ def _merge_splits(chunk_results: list[ClassifyResult]) -> ClassifyResult:
         for split in result.splits:
             cat = category_map[split.name]
             cat["pages"].extend(split.pages)
-            
-            # If any chunk has low confidence, mark the whole category as low
+
             if split.conf == "low":
                 cat["conf"] = "low"
             
@@ -57,13 +54,9 @@ def _merge_splits(chunk_results: list[ClassifyResult]) -> ClassifyResult:
                     if partition.conf == "low":
                         part["conf"] = "low"
     
-    # Convert to Split objects
     splits = []
     for name, data in category_map.items():
-        # Sort and deduplicate pages
         pages = sorted(set(data["pages"]))
-        
-        # Build partitions if any exist
         partitions = None
         if data["partitions"]:
             partitions = [
@@ -113,21 +106,16 @@ async def classify(
         ValueError: If configuration is invalid
         Exception: If provider is not supported
     """
-    # Validate
     if not api_key or not api_key.strip():
         raise ValueError("Valid API key is required")
     if not file_path or not file_path.strip():
         raise ValueError("Valid file path is required")
-    # Allow empty categories for auto-detect mode
-    # if not categories:
-    #     raise ValueError("At least one category is required")
     
     if provider not in ["mistral", "openai", "gemini"]:
         raise ValueError(f"Provider {provider} not supported for classification")
     
-    # Convert to CategoryDescription objects if needed
     category_objs = []
-    if categories:  # Only process if categories are provided
+    if categories:
         for cat in categories:
             if isinstance(cat, CategoryDescription):
                 category_objs.append(cat)
@@ -137,8 +125,6 @@ async def classify(
                     description=cat["description"],
                     partition_key=cat.get("partitionKey")
                 ))
-    
-    # Create config object
     config = ClassifyConfig(
         file_path=file_path,
         api_key=api_key,
@@ -148,14 +134,10 @@ async def classify(
         chunk_size=chunk_size,
         max_concurrent=max_concurrent
     )
-    
-    # Get page count
     total_pages = _get_page_count(file_path)
     chunk_size = chunk_size or 75
     
-    # Decide: single-shot or chunked
     if total_pages <= chunk_size:
-        # Single-shot classification
         from .providers.mistral import process_classify_mistral
         from .providers.openai import process_classify_openai
         from .providers.gemini import process_classify_gemini
@@ -167,15 +149,10 @@ async def classify(
         elif provider == "gemini":
             return await process_classify_gemini(config, page_range=(1, total_pages))
     else:
-        # Chunked classification
         chunks = _chunk_pages(total_pages, chunk_size)
-        
-        # Import providers
         from .providers.mistral import process_classify_mistral
         from .providers.openai import process_classify_openai
         from .providers.gemini import process_classify_gemini
-        
-        # Create semaphore for concurrency control
         max_concurrent = config.max_concurrent or 5
         semaphore = asyncio.Semaphore(max_concurrent)
         
@@ -189,12 +166,10 @@ async def classify(
                     return await process_classify_gemini(config, page_range=page_range)
                 else:
                     raise ValueError(f"Provider {provider} not supported")
-        
-        # Process all chunks concurrently
+
         tasks = [classify_chunk(chunk) for chunk in chunks]
         results = await asyncio.gather(*tasks)
-        
-        # Merge results
+
         return _merge_splits(results)
     
     raise ValueError(f"Provider {provider} not supported")

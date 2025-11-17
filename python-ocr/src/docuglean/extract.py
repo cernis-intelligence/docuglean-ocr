@@ -32,7 +32,6 @@ async def extract(config: ExtractConfig) -> StructuredExtractionResult:
     if provider != "local":
         validate_config(config)
 
-    # Route to correct provider
     if provider == "mistral":
         return await process_doc_extraction_mistral(config)
     elif provider == "openai":

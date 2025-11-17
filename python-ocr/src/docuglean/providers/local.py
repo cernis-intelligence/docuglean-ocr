@@ -41,7 +41,6 @@ async def parse_document_local(file_path: str) -> dict:
 async def process_ocr_local(file_path: str) -> LocalOCRResponse:
     result = await parse_document_local(file_path)
     
-    # Handle different return types
     if "text" in result:
         text = result["text"]
     elif "raw_text" in result:
