@@ -16,14 +16,54 @@ body {
     margin: 0 auto;
 }
 
-.header {
-    text-align: center;
-    margin-bottom: 40px;
-    padding: 40px 20px;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+/* Container */
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Arial', sans-serif;
 }
+
+/* Banner Image Styling */
+.container > img {
+    display: block;
+    width: 100%;          /* Full width, responsive */
+    max-width: 800px;     /* Optional max width */
+    height: auto;         /* Maintain aspect ratio */
+    margin: 0 auto 30px auto;  /* Center horizontally and add bottom spacing */
+    border-radius: 12px;  /* Slightly rounded corners */
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15); /* Soft shadow for depth */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Optional hover effect */
+.container > img:hover {
+    transform: scale(1.02);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+/* Main Content Cards */
+.main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.card {
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    margin-top: 50px;
+    color: #666;
+    font-size: 0.9rem;
+}
+
 
 .header h1 {
     font-size: 2.5em;
